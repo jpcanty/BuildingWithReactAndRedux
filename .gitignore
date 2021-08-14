@@ -1,3 +1,4 @@
 node_modules/
 package-lock.json
 webpack.config.dev.js
+.DS_Store
