@@ -7,7 +7,8 @@ import { bindActionCreators } from 'redux'
 import CourseForm from './CourseForm'
 import { newCourse } from '../../../tools/mockData'
 
-const ManageCoursePage = ({ courses, authors, actions, ...props }) => {
+const ManageCoursePage = ({ courses, authors, actions, history, ...props }) => {
+    //This is how React Hooks add state to function components
     const [course, setCourse] = useState({...props.course})
     const [errors, setErrors] = useState({...props.errors})
     useEffect( () => {
@@ -15,6 +16,8 @@ const ManageCoursePage = ({ courses, authors, actions, ...props }) => {
             actions.courses.loadCourses().catch(error => {
                 alert("Loading courses failed " + error)
             })
+        } else {
+            setCourse({...props.course})
         }
         if (authors.length === 0) {
             actions.authors.loadAuthors().catch(error => {
@@ -23,8 +26,27 @@ const ManageCoursePage = ({ courses, authors, actions, ...props }) => {
         }
     //useEffect with an empty array is equivalent to componentDidMount
     //Otherwise, would run everytime it renders
-    }, [])
-    return <CourseForm course={course} errors={errors} authors={authors}></CourseForm>
+    }, [props.course])
+
+
+    //name identifies the field that's changed
+    function handleChange(event) {
+        const { name, value } = event.target 
+        setCourse ( prevCourse => ({
+            ...prevCourse,
+            [name]: name === "authorId" ? parseInt(value, 10) : value
+        }))
+    }
+
+    //One way to redirect, history comes from React Router
+    function handleSave(event) {
+        event.preventDefault()
+        actions.courses.saveCourse(course).then( () => {
+            history.push("/courses")
+        })
+    }
+
+    return <CourseForm course={course} errors={errors} authors={authors} onChange={handleChange} onSave={handleSave}></CourseForm>
     
 }
 
@@ -34,16 +56,23 @@ ManageCoursePage
     errors: PropTypes.array.isRequired,
     courses: PropTypes.array.isRequired,
     authors: PropTypes.array.isRequired,
-    actions: PropTypes.object.isRequired
+    actions: PropTypes.object.isRequired,
+    history: PropTypes.object.isRequired
 }
 
-//ownProps not need, so it is removed
-function mapStateToProps(state) {
+export function getCourseBySlug(courses, slug) {
+    return courses.find(course => course.slug === slug) || null
+}
+
+function mapStateToProps(state, ownProps) {
+    // this is available bc /:slug in App.js
+    const slug = ownProps.match.params.slug
+    const course = slug && state.courses.length > 0 ? getCourseBySlug(state.courses, slug) : newCourse
     return {
         //newCourse is an empty course
         courses: state.courses,
         authors: state.authors,
-        course: newCourse,
+        course,
         errors: []
     }
 }
