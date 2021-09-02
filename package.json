@@ -57,27 +57,27 @@
   "engines": {
     "node": ">=8"
   },
-  "babel":{
-    "presets" : [
+  "babel": {
+    "presets": [
       "babel-preset-react-app"
     ]
   },
-  "eslintConfig":{
-    "extends":[
+  "eslintConfig": {
+    "extends": [
       "eslint:recommended",
       "plugin:react/recommended",
       "plugin:import/errors",
       "plugin:import/warnings"
     ],
     "parser": "babel-eslint",
-    "parserOptions":{
+    "parserOptions": {
       "ecmaVersion": 2018,
       "sourceType": "module",
-      "ecmaFeatures" :{
+      "ecmaFeatures": {
         "jsx": true
       }
     },
-    "env":{
+    "env": {
       "browser": true,
       "node": true,
       "es6": true,
