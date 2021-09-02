@@ -1,4 +1,8 @@
 node_modules/
+<<<<<<< HEAD
 package-lock.json
 webpack.config.dev.js
 .DS_Store
+=======
+package-lock.json
+>>>>>>> 55ddc5db1536716a72cc8ad95a63650237d78e09
