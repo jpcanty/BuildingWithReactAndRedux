@@ -6,11 +6,14 @@ import PropTypes from 'prop-types'
 import { bindActionCreators } from 'redux'
 import CourseForm from './CourseForm'
 import { newCourse } from '../../../tools/mockData'
+import Spinner from "../common/Spinner";
+import { toast } from "react-toastify"
 
 const ManageCoursePage = ({ courses, authors, actions, history, ...props }) => {
     //This is how React Hooks add state to function components
     const [course, setCourse] = useState({...props.course})
     const [errors, setErrors] = useState({...props.errors})
+    const [saving, setSaving] = useState(false)
     useEffect( () => {
         if (courses.length === 0) {
             actions.courses.loadCourses().catch(error => {
@@ -38,15 +41,33 @@ const ManageCoursePage = ({ courses, authors, actions, history, ...props }) => {
         }))
     }
 
+    function formIsValid() {
+        const { title, authorId, category } = course
+        const errors = {}
+
+        if (!title) errors.title = "Title is required"
+        if (!authorId) errors.author = "Author is required"
+        if (!category) errors.category = "Category is required"
+
+        setErrors(errors)
+        return Object.keys(errors).length === 0
+    }
+
     //One way to redirect, history comes from React Router
     function handleSave(event) {
         event.preventDefault()
+        if (!formIsValid()) return 
+        setSaving(true)
         actions.courses.saveCourse(course).then( () => {
+            toast.success("Course saved.")
             history.push("/courses")
+        }).catch (error => {
+            setSaving(false)
+            setErrors( {onSave: error.message} )
         })
     }
 
-    return <CourseForm course={course} errors={errors} authors={authors} onChange={handleChange} onSave={handleSave}></CourseForm>
+    return authors.length === 0 || courses.length === 0 ? (<Spinner/>):(<CourseForm course={course} errors={errors} authors={authors} onChange={handleChange} onSave={handleSave} saving={saving}></CourseForm>)
     
 }
 
